@@ -1,0 +1,15 @@
+__include__: [
+  '../include/itc_ovad_r50vd.yml',
+]
+
+HybridEncoder:
+  TGFE_Flag: True
+  VGTR_Flag: True
+  VGTR_dict: {
+    class_embeddings_channels: 1024,
+    image_channels: 256,
+    num_heads: 8
+  }
+
+ITCOVADTransformer:
+  TGQE_Flag: True

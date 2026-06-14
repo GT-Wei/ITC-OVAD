@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+output/
+*.pth
+*.log
+class_text_dict/ovadetr_dota_dior_xview_detection_v1_category_each_v1.5/
+datasets/
+
+# local-only helpers (HF upload, etc.)
+tools/

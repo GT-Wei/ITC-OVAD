@@ -1,0 +1,67 @@
+__include__: [
+  './include/itc_ovad_r50vd.yml',
+]
+
+# ---- model (open-vocabulary / LAE-1M setup) ----
+HybridEncoder:
+  TGFE_Flag: True
+  VGTR_Flag: True
+  VGTR_dict: {
+    class_embeddings_channels: 1024,
+    image_channels: 256,
+    num_heads: 8
+  }
+
+ITCOVADTransformer:
+  TGQE_Flag: True
+  LAE_1M_Flag: True          # open-vocabulary text path (category names come from the COCO json)
+
+# ---- open-vocabulary aerial detection validation sets ----
+# Edit the img_folder / ann_file paths to point at your local datasets.
+# Category names are read directly from each COCO annotation file (no class_json needed).
+# Recommended checkpoint: weights/itc_ovad_lae1m.pth (re-trained on a public machine).
+val_dataloader:
+  type: DataLoader
+  dataset:
+    type: ConcatDataset
+    datasets_list:
+      LAE-80C:
+        type: LAE_1M_Detection
+        img_folder: datasets/LAE-1M/LAE-80C/images
+        ann_file:   datasets/LAE-1M/LAE-80C/LAE-80C-benchmark-remap.json
+        transforms:
+          type: Compose
+          ops:
+            - {type: Resize, size: [800, 800]}
+            - {type: ToImageTensor}
+            - {type: ConvertDtype}
+            - {type: LoadText}
+      DOTAv2:
+        type: LAE_1M_Detection
+        img_folder: datasets/LAE-1M/DOTAv2/images
+        ann_file:   datasets/LAE-1M/DOTAv2/DOTAv2_val_remap.json
+        transforms:
+          type: Compose
+          ops:
+            - {type: Resize, size: [800, 800]}
+            - {type: ToImageTensor}
+            - {type: ConvertDtype}
+            - {type: LoadText}
+      DIOR:
+        type: LAE_1M_Detection
+        img_folder: datasets/LAE-1M/DIOR/images
+        ann_file:   datasets/LAE-1M/DIOR/DIOR_val_remap.json
+        transforms:
+          type: Compose
+          ops:
+            - {type: Resize, size: [800, 800]}
+            - {type: ToImageTensor}
+            - {type: ConvertDtype}
+            - {type: LoadText}
+  shuffle: False
+  batch_size: 4
+  num_workers: 4
+  drop_last: False
+  pin_memory: True
+  novel_classNum_list: [-1, -1, -1]    # no base/novel split -> per-category + binned mAP/AP50/Recall50
+  collate_fn: default_collate_fn

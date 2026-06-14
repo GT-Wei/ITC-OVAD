@@ -1,0 +1,96 @@
+# num_query: 500
+task: detection
+
+model: ITCOVAD
+postprocessor: ITCOVADPostProcessor
+
+
+ITCOVAD: 
+  backbone: Multi_modality_Backbone
+  encoder: HybridEncoder
+  decoder: ITCOVADTransformer
+  multi_scale: [640, 672, 704, 736, 768, 800, 800, 800, 832, 864, 896, 928, 960]
+
+Multi_modality_Backbone:
+  image_model: {
+    layers: [3, 4, 6, 3],
+    model_name: 'RN50',
+    width: 64,
+    pretrained: True,
+    frozen: False,
+    load_openai: True
+  }
+  text_model: {
+    model_name: 'RN50',
+    context_length: 77,
+    vocab_size: 49408,
+    width: 512,
+    heads: 8,
+    layers: 12,
+    output_dim: 1024,
+    frozen_modules: ['all'],
+    frozen: True,
+    load_openai: True
+  }
+
+
+HybridEncoder:
+  TGFE_Flag: True
+  TGFE_dict: {
+    class_embeddings_channels: 1024,
+    image_channels: 256,
+    num_heads: 8
+  }
+  in_channels: [512, 1024, 2048]
+  feat_strides: [8, 16, 32]
+
+  # intra
+  hidden_dim: 256
+  use_encoder_idx: [2]
+  num_encoder_layers: 1
+  nhead: 8
+  dim_feedforward: 1024
+  dropout: 0.
+  enc_act: 'gelu'
+  pe_temperature: 10000
+  
+  # cross
+  expansion: 1.0
+  depth_mult: 1
+  act: 'silu'
+
+  # eval
+  eval_spatial_size: [800, 800]
+
+
+ITCOVADTransformer:
+  TGQE_Flag: True
+  TGQE_dict: {
+    class_embeddings_channels: 1024,
+    image_channels: 256,
+    num_heads: 8
+  }
+  Unidir_Cons_dict: {
+    class_embeddings_channels: 1024,
+    image_channels: 256
+  }
+  feat_channels: [256, 256, 256]
+  feat_strides: [8, 16, 32]
+  hidden_dim: 256
+  num_levels: 3
+
+  num_queries: 500
+
+  num_decoder_layers: 6
+  num_denoising: 100
+  
+  eval_idx: -1
+  eval_spatial_size: [800, 800]
+
+
+use_focal_loss: True
+
+ITCOVADPostProcessor:
+  num_top_queries: 500
+
+

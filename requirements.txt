@@ -1,0 +1,7 @@
+# ITC-OVAD inference dependencies
+torch>=2.0
+torchvision>=0.15
+open-clip-torch>=2.20
+pillow
+numpy
+pyyaml
